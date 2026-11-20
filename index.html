@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fffcf2" />
+  <meta name="description" content="点一下奶蛙，它就狂笑。" />
+  <title>奶蛙狂笑</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="奶蛙狂笑" />
+  <link rel="preload" as="image" href="assets/mf-poster.jpg" />
+  <script>
+    // 在样式加载前定好主题，避免刷新时闪一下
+    (function () {
+      var mode = 'system';
+      try { mode = localStorage.getItem('mf-theme-mode') || 'system'; } catch (e) {}
+      var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme-mode', mode);
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="quick-tools">
+    <button
+      type="button"
+      class="tool-btn tool-theme"
+      id="themeBtn"
+      aria-label="显示模式：跟随系统，点击切换"
+      title="显示模式：跟随系统"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="12" rx="2" />
+        <path d="M8 20h8M12 16v4" />
+      </svg>
+    </button>
+
+    <div class="tool-anchor">
+      <button
+        type="button"
+        class="tool-btn tool-volume"
+        id="volumeBtn"
+        aria-label="音量设置"
+        aria-expanded="false"
+        aria-controls="volumePopover"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 5 6 9H3v6h3l5 4V5z" />
+          <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
+        </svg>
+      </button>
+
+      <div class="volume-popover" id="volumePopover" hidden>
+        <p class="popover-title" id="volumeLabel">音量调节</p>
+        <div class="popover-slider">
+          <input
+            type="range"
+            id="volumeSlider"
+            min="0"
+            max="100"
+            value="30"
+            aria-label="音量"
+            aria-labelledby="volumeLabel"
+          />
+          <output class="volume-value" id="volumeValue" for="volumeSlider">30%</output>
+        </div>
+        <button type="button" class="popover-sound" id="soundBtn" aria-pressed="true">声音：开</button>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="tool-btn tool-count"
+      id="countBtn"
+      title="点击切换显示完整次数"
+      aria-label="奶蛙已经大笑 0 次，点击切换显示完整次数"
+    >0</button>
+  </div>
+
+  <main class="app">
+    <div class="frog-screen" id="frogScreen" role="button" tabindex="0" aria-label="点击让奶蛙狂笑">
+      <div class="frog-stage">
+        <video
+          id="frogVideo"
+          class="frog-video"
+          data-src="assets/mf-stream.mp4"
+          poster="assets/mf-poster.jpg"
+          playsinline
+          webkit-playsinline
+          preload="none"
+          controlsList="nodownload noplaybackrate noremoteplayback"
+          disablePictureInPicture
+          disableRemotePlayback
+          oncontextmenu="return false"
+        ></video>
+        <img
+          id="frogPoster"
+          class="frog-poster"
+          src="assets/mf-poster.jpg"
+          alt="一只黄色奶蛙"
+          draggable="false"
+        />
+      </div>
+
+      <span class="haha haha-a">哈哈哈</span>
+      <span class="haha haha-b">HAHA</span>
+      <span class="haha haha-c">嘎嘎嘎</span>
+      <span class="haha haha-d">啊哈哈</span>
+
+      <div class="frog-loading" aria-hidden="true"></div>
+      <div class="tap-hint" id="tapHint" aria-hidden="true">点我</div>
+      <div class="end-hint" id="endHint" aria-hidden="true">笑完啦，再点一次</div>
+    </div>
+
+    <div class="controls">
+      <div class="control-row">
+        <button type="button" class="btn btn-stop" id="stopBtn" hidden>停止</button>
+        <button type="button" class="btn" id="loopBtn" aria-pressed="false">
+          <span class="btn-icon" aria-hidden="true">↻</span><span id="loopLabel">循环大笑</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <button type="button" class="info-btn" id="infoBtn" aria-label="更多信息" aria-expanded="false" aria-controls="infoPanel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 8h.01" />
+    </svg>
+  </button>
+
+  <div class="info-panel" id="infoPanel" hidden>
+    <div class="info-head">
+      <strong>更多信息</strong>
+      <button type="button" class="info-close" id="infoClose" aria-label="关闭信息面板">×</button>
+    </div>
+
+    <div class="info-stats">
+      <div class="info-row">
+        <span class="info-key">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+          本站已运行
+        </span>
+        <span class="info-value" id="site_uptime">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" /><circle cx="12" cy="12" r="2.5" /></svg>
+          本页访问人次
+        </span>
+        <span class="info-value" id="page_pv">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" /></svg>
+          本页访问人数
+        </span>
+        <span class="info-value" id="page_uv">—</span>
+      </div>
+    </div>
+
+    <div class="info-divider"></div>
+
+    <div class="info-extra">
+      <p class="info-copy">Copyright © 2026 <a href="https://yjhup.com" target="_blank" rel="noopener noreferrer">YJH</a>. All rights reserved.</p>
+      <p class="info-copy">Powered by <a href="https://yjhup.com" target="_blank" rel="noopener noreferrer">YJH</a></p>
+      <p class="info-source">素材来源：<a href="https://milkyfrog.com/" target="_blank" rel="noopener noreferrer">milkyfrog.com</a></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
