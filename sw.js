@@ -1,4 +1,4 @@
-var CACHE_NAME = 'milkyfrog-v2';
+var CACHE_NAME = 'milkyfrog-v3';
 
 var PRECACHE = [
   './',
@@ -45,6 +45,26 @@ self.addEventListener('fetch', function (event) {
 
   var url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // 页面导航走网络优先，避免部署后仍拿到缓存里的旧 HTML
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).then(function (response) {
+        if (response && response.ok) {
+          var copy = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(request, copy);
+          });
+        }
+        return response;
+      }).catch(function () {
+        return caches.match(request).then(function (cached) {
+          return cached || caches.match('./');
+        });
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then(function (cached) {
